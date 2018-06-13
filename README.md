@@ -2,12 +2,16 @@
 
 Optimised (but old) docker-compose stack for wordpress with NGINX and MariaDB.
 
+__This project is not maintained anymore and is here for history only__
+
 This is the stack I used, back in 2016, for all my wordpress deployments.
 At that time, docker swarm did not exist and I was looking for a solid stack for wordpress, with Nginx.
 
 This stack is made to be used behind the reverse proxy [jwilder/nginx-proxy ](https://github.com/jwilder/nginx-proxy) and the associated let's encrypt automation [alastaircoote/docker-letsencrypt-nginx-proxy-companion](https://github.com/alastaircoote/docker-letsencrypt-nginx-proxy-companion)
 
 The nginx configuration is modified to work well with the wordpress cache plugin: [W3 Total Cache](https://fr.wordpress.org/plugins/w3-total-cache/); and SEO plugin[Yoast SEO](https://fr.wordpress.org/plugins/wordpress-seo/)
+
+TODO (but wasn't): add redis or memcache
 
 ## Structure
 
