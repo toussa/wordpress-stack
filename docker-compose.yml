@@ -1,0 +1,60 @@
+version: '2'
+services:
+
+  db: #https://hub.docker.com/_/mariadb/
+    image: mariadb
+    restart: always
+    volumes:
+      - "wp-db:/var/lib/mysql:rw"
+    env_file:
+      - "./conf/db/mysql.env"
+    networks:
+      - back
+
+  php-wp: 
+    build: "docker-images/php-wp"
+    image: php-wp
+    restart: always
+    volumes:
+      - "wp-files:/var/www/html:rw"
+      - "./conf/tools:/tools:ro"
+      - "./conf/wp/uploads.ini://usr/local/etc/php/conf.d/uploads.ini:ro"
+    env_file:
+      - "./conf/wp/wordpress.env"
+    depends_on:
+      - db
+    networks:
+      - back
+    command: "bash /tools/wait-for-it.sh db:3306 -t 60 -- docker-entrypoint.sh php-fpm -F"
+
+  nginx: #https://hub.docker.com/_/nginx/
+    image: nginx
+    restart: always
+    volumes:
+      - "wp-files:/usr/share/nginx/html:nocopy"
+      - "./conf/nginx/:/nginx:ro"
+      - "./conf/tools:/tools:ro"
+    networks:
+      - middle-end
+      - back
+    depends_on:
+      - php-wp
+    environment:
+      - "PHP_FPM_HOST=php-wp:9000"
+      - "PHP_FPM_ROOT_DIR=/var/www/html"
+      - "VIRTUAL_HOST=website.com,www.website.com"
+      - "NGINX_CONFIG_ROOT=/server"
+      - "NGINX_SERVER_NAME=website.com"
+      - "LETSENCRYPT_HOST=website.com,www.website.com"
+      - "LETSENCRYPT_EMAIL=contact@website.com"
+    command: "bash /nginx/start-nginx.sh"
+
+networks:
+  middle-end:
+    external: true
+  back: {}
+
+volumes:
+  wp-files: {}
+  wp-db: {}
+
